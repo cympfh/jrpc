@@ -7,7 +7,7 @@ JSON-RPC 2.0 Implementation for Python 3.7+.
 Just Experimental.
 
 - [x] request
-- [ ] batch request
+- [x] batch request
 - [x] notify
 - [ ] Error handling
 
@@ -44,11 +44,21 @@ app.run(host="0.0.0.0", endpoint="/", port=8080, debug=True)
 ### Request by curl
 
 ```bash
-$ curl -X POST localhost:8080 --data '{"jsonrpc":"2.0", "method":"ping"}'
-{"jsonrpc": "2.0", "result": "pong", "id": null}
+# request "ping"
+$ curl -X POST localhost:8080 --data '{"jsonrpc":"2.0", "method":"ping", "id":"42"}'
+{"jsonrpc": "2.0", "result": "pong", "id": "42"}
 
+# notify "ping" (without id)
+$ curl -X POST localhost:8080 --data '{"jsonrpc":"2.0","method":"ping"}'
+null
+
+# request "plus" with params
 $ curl -X POST localhost:8080 --data '{"jsonrpc":"2.0", "method":"plus", "params":[2, 3], "id":"fuga"}'
 {"jsonrpc": "2.0", "result": 5, "id": "fuga"}
+
+# request/notify by batch
+$ curl -X POST localhost:8080 --data '[{"jsonrpc":"2.0","method":"ping"},{"id":"calc1","jsonrpc":"2.0","method":"plus","params":[2,3]},{"id":"calc2","jsonrpc":"2.0","method":"plus","params":[1,-1]}]'
+[{"jsonrpc": "2.0", "result": 5, "id": "calc1"}, {"jsonrpc": "2.0", "result": 0, "id": "calc2"}]%
 ```
 
 ### Client Code
@@ -65,11 +75,22 @@ async def main():
     response = await client.request("ping")
     print(response)
 
+    response = await client.notify("ping")
+    print(response)  # None
+
     response = await client.request("plus", 2, 3)
     print(response)
 
     response = await client.request("plus", n=2, m=3)
     print(response)
+
+    with client.batch() as batch:
+        result = batch.gather(
+            batch.notify("ping"),
+            batch.request("plus", 2, 3),
+            batch.request("plus", -1, 1),
+        )
+        print(result)  # [None, Success(result=5, id='2'), Success(result=0, id='3')]
 
 
 loop = asyncio.get_event_loop()

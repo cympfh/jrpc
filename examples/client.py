@@ -10,14 +10,21 @@ async def main():
     print(response)
 
     response = await client.notify("ping")
-    print(response)
-    assert response is None, "Notify returns just None!"
+    print(response)  # None
 
     response = await client.request("plus", 2, 3)
     print(response)
 
     response = await client.request("plus", n=2, m=3)
     print(response)
+
+    with client.batch() as batch:
+        result = await batch.gather(
+            batch.notify("ping"),
+            batch.request("plus", 2, 3),
+            batch.request("plus", -1, 1),
+        )
+        print(result)  # [None, Success(result=5, id='2'), Success(result=0, id='3')]
 
 
 loop = asyncio.get_event_loop()

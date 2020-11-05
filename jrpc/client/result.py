@@ -19,7 +19,9 @@ Result = Union[Success, Failed]
 
 def from_json(o: dict) -> Result:
 
-    if o.get("result", None):
+    if o.get("result", None) is not None:
         result = o.get("result")
         request_id = o.get("id")
         return Success(result, request_id)
+
+    return Failed(0, "")
