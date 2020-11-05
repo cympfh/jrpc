@@ -10,6 +10,8 @@ Just Experimental.
 - [x] batch request
 - [x] notify
 - [ ] Error handling
+- [ ] logging
+- [ ] debug mode
 
 ## What is JSON-RPC?
 
