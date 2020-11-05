@@ -9,6 +9,10 @@ async def main():
     response = await client.request("ping")
     print(response)
 
+    response = await client.notify("ping")
+    print(response)
+    assert response is None, "Notify returns just None!"
+
     response = await client.request("plus", 2, 3)
     print(response)
 

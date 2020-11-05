@@ -8,7 +8,8 @@ Just Experimental.
 
 - [x] request
 - [ ] batch request
-- [ ] notify
+- [x] notify
+- [ ] Error handling
 
 ## What is JSON-RPC?
 
